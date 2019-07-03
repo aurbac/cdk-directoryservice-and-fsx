@@ -1,0 +1,697 @@
+{
+    "Description": "Create an AWS Managed Microsoft AD and Amazon FSx - By Uriel Ramirez",
+    "Mappings": {
+        "RegionMap": {
+            "us-east-1": {
+                "AMI": "ami-0d41aee8a57fdb850"
+            }
+        }
+    },
+    "Outputs": {
+        "FileSystemId": {
+            "Description": "File System Id",
+            "Value": {
+                "Ref": "MyFSx"
+            }
+        },
+        "MicrosoftADAlias": {
+            "Description": "The alias for a directory.",
+            "Value": {
+                "Fn::GetAtt": [
+                    "MyMicrosoftAD",
+                    "Alias"
+                ]
+            }
+        },
+        "MicrosoftADDnsIpAddresses": {
+            "Description": "The IP addresses of the DNS servers for the directory.",
+            "Value": {
+                "Fn::Join": [
+                    ",",
+                    {
+                        "Fn::GetAtt": [
+                            "MyMicrosoftAD",
+                            "DnsIpAddresses"
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "Parameters": {
+        "ADEdition": {
+            "AllowedValues": [
+                "Standard",
+                "Enterprise"
+            ],
+            "Default": "Standard",
+            "Description": "AWS Managed Microsoft AD is available in two editions: Standard and Enterprise.",
+            "Type": "String"
+        },
+        "ADName": {
+            "AllowedPattern": "^([a-zA-Z0-9]+[\\.-])+([a-zA-Z0-9])+$",
+            "Default": "corp.example.com",
+            "Description": "The Active Direcotry name to use.",
+            "MaxLength": "64",
+            "MinLength": "1",
+            "Type": "String"
+        },
+        "ADPassword": {
+            "AllowedPattern": "(?=^.{8,64}$)((?=.*\\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[^A-Za-z0-9\\s])(?=.*[a-z])|(?=.*[^A-Za-z0-9\\s])(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9\\s]))^.*",
+            "Default": "MicrosoftADPW123*",
+            "Description": "The Active Direcotry password.",
+            "MaxLength": "40",
+            "MinLength": "5",
+            "NoEcho": true,
+            "Type": "String"
+        },
+        "ADShortName": {
+            "AllowedPattern": "^[^\\/:*?\"\\<\\>|.]+[^\\/:*?\"<>|]*$",
+            "Default": "ADShortName",
+            "Description": "The Active Direcotry short name to use.",
+            "MaxLength": "15",
+            "MinLength": "1",
+            "Type": "String"
+        },
+        "FSxStorageCapacity": {
+            "Default": "300",
+            "Description": "The storage capacity of the file system.",
+            "MaxValue": "64000",
+            "MinValue": "300",
+            "Type": "Number"
+        },
+        "KeyName": {
+            "Description": "Name of an existing EC2 KeyPair to enable RDP access to the instance",
+            "Type": "AWS::EC2::KeyPair::KeyName"
+        },
+        "VpcCidrBlock": {
+            "AllowedPattern": "((\\d{1,3})\\.){3}\\d{1,3}/\\d{1,2}",
+            "Default": "10.0.0.0/16",
+            "Description": "Cidr block for the VPC.",
+            "Type": "String"
+        },
+        "VpcCidrBlockPrivateSubnet01": {
+            "AllowedPattern": "((\\d{1,3})\\.){3}\\d{1,3}/\\d{1,2}",
+            "Default": "10.0.2.0/24",
+            "Description": "Cidr block for the private subnet 1.",
+            "Type": "String"
+        },
+        "VpcCidrBlockPrivateSubnet02": {
+            "AllowedPattern": "((\\d{1,3})\\.){3}\\d{1,3}/\\d{1,2}",
+            "Default": "10.0.3.0/24",
+            "Description": "Cidr block for the private subnet 2.",
+            "Type": "String"
+        },
+        "VpcCidrBlockPublicSubnet01": {
+            "AllowedPattern": "((\\d{1,3})\\.){3}\\d{1,3}/\\d{1,2}",
+            "Default": "10.0.0.0/24",
+            "Description": "Cidr block for the public subnet 1.",
+            "Type": "String"
+        },
+        "VpcCidrBlockPublicSubnet02": {
+            "AllowedPattern": "((\\d{1,3})\\.){3}\\d{1,3}/\\d{1,2}",
+            "Default": "10.0.1.0/24",
+            "Description": "Cidr block for the public subnet 2.",
+            "Type": "String"
+        }
+    },
+    "Resources": {
+        "AttachGateway": {
+            "Properties": {
+                "InternetGatewayId": {
+                    "Ref": "InternetGateway"
+                },
+                "VpcId": {
+                    "Ref": "Vpc"
+                }
+            },
+            "Type": "AWS::EC2::VPCGatewayAttachment"
+        },
+        "EC2Instance": {
+            "DependsOn": [
+                "MyMicrosoftAD"
+            ],
+            "Properties": {
+                "IamInstanceProfile": {
+                    "Ref": "InstanceProfile"
+                },
+                "ImageId": {
+                    "Fn::FindInMap": [
+                        "RegionMap",
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "AMI"
+                    ]
+                },
+                "InstanceType": "t3.medium",
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "NetworkInterfaces": [
+                    {
+                        "DeviceIndex": "0",
+                        "NetworkInterfaceId": {
+                            "Ref": "Eth0"
+                        }
+                    }
+                ],
+                "SsmAssociations": [
+                    {
+                        "AssociationParameters": [
+                            {
+                                "Key": "directoryId",
+                                "Value": [
+                                    {
+                                        "Ref": "MyMicrosoftAD"
+                                    }
+                                ]
+                            },
+                            {
+                                "Key": "directoryName",
+                                "Value": [
+                                    {
+                                        "Ref": "ADName"
+                                    }
+                                ]
+                            },
+                            {
+                                "Key": "dnsIpAddresses",
+                                "Value": {
+                                    "Fn::GetAtt": [
+                                        "MyMicrosoftAD",
+                                        "DnsIpAddresses"
+                                    ]
+                                }
+                            }
+                        ],
+                        "DocumentName": {
+                            "Ref": "MySSMDocument"
+                        }
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "MyWindowsInstance"
+                    }
+                ]
+            },
+            "Type": "AWS::EC2::Instance"
+        },
+        "EIpAssocInstance": {
+            "Properties": {
+                "AllocationId": {
+                    "Fn::GetAtt": [
+                        "EIpInstance",
+                        "AllocationId"
+                    ]
+                },
+                "NetworkInterfaceId": {
+                    "Ref": "Eth0"
+                },
+                "PrivateIpAddress": {
+                    "Fn::GetAtt": [
+                        "Eth0",
+                        "PrimaryPrivateIpAddress"
+                    ]
+                }
+            },
+            "Type": "AWS::EC2::EIPAssociation"
+        },
+        "EIpInstance": {
+            "Properties": {
+                "Domain": "vpc"
+            },
+            "Type": "AWS::EC2::EIP"
+        },
+        "Eth0": {
+            "Properties": {
+                "Description": "eth0",
+                "GroupSet": [
+                    {
+                        "Ref": "SGInstance"
+                    }
+                ],
+                "SourceDestCheck": "true",
+                "SubnetId": {
+                    "Ref": "PublicSubnet01"
+                },
+                "Tags": [
+                    {
+                        "Key": "Interface",
+                        "Value": "eth0"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "Interface 0"
+                    }
+                ]
+            },
+            "Type": "AWS::EC2::NetworkInterface"
+        },
+        "IGRoute": {
+            "DependsOn": "AttachGateway",
+            "Properties": {
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "GatewayId": {
+                    "Ref": "InternetGateway"
+                },
+                "RouteTableId": {
+                    "Ref": "PublicRouteTable"
+                }
+            },
+            "Type": "AWS::EC2::Route"
+        },
+        "InstanceProfile": {
+            "Properties": {
+                "InstanceProfileName": "WindowsInstanceProfile",
+                "Roles": [
+                    {
+                        "Ref": "InstanceRole"
+                    }
+                ]
+            },
+            "Type": "AWS::IAM::InstanceProfile"
+        },
+        "InstanceRole": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "sts:AssumeRole"
+                            ],
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "ec2.amazonaws.com"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+                ],
+                "RoleName": "WindowsInstanceRole"
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "InternetGateway": {
+            "Type": "AWS::EC2::InternetGateway"
+        },
+        "MyFSx": {
+            "DependsOn": [
+                "MyMicrosoftAD"
+            ],
+            "Properties": {
+                "FileSystemType": "WINDOWS",
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "SGFSx"
+                    }
+                ],
+                "StorageCapacity": {
+                    "Ref": "FSxStorageCapacity"
+                },
+                "SubnetIds": [
+                    {
+                        "Ref": "PrivateSubnet01"
+                    }
+                ],
+                "WindowsConfiguration": {
+                    "ActiveDirectoryId": {
+                        "Ref": "MyMicrosoftAD"
+                    },
+                    "AutomaticBackupRetentionDays": 2,
+                    "CopyTagsToBackups": "true",
+                    "DailyAutomaticBackupStartTime": "01:00",
+                    "ThroughputCapacity": 8,
+                    "WeeklyMaintenanceStartTime": "4:16:30"
+                }
+            },
+            "Type": "AWS::FSx::FileSystem"
+        },
+        "MyMicrosoftAD": {
+            "DependsOn": [
+                "NatRoute"
+            ],
+            "Properties": {
+                "Edition": {
+                    "Ref": "ADEdition"
+                },
+                "Name": {
+                    "Ref": "ADName"
+                },
+                "Password": {
+                    "Ref": "ADPassword"
+                },
+                "ShortName": {
+                    "Ref": "ADShortName"
+                },
+                "VpcSettings": {
+                    "SubnetIds": [
+                        {
+                            "Ref": "PrivateSubnet01"
+                        },
+                        {
+                            "Ref": "PrivateSubnet02"
+                        }
+                    ],
+                    "VpcId": {
+                        "Ref": "Vpc"
+                    }
+                }
+            },
+            "Type": "AWS::DirectoryService::MicrosoftAD"
+        },
+        "MySSMDocument": {
+            "Properties": {
+                "Content": {
+                    "description": "Join instances to an AWS Directory Service domain.",
+                    "parameters": {
+                        "directoryId": {
+                            "description": "(Required) The ID of the AWS Directory Service directory.",
+                            "type": "String"
+                        },
+                        "directoryName": {
+                            "description": "(Required) The name of the directory; for example, test.example.com",
+                            "type": "String"
+                        },
+                        "dnsIpAddresses": {
+                            "allowedPattern": "((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)",
+                            "default": [],
+                            "description": "(Optional) The IP addresses of the DNS servers in the directory. Required when DHCP is not configured. Learn more at http://docs.aws.amazon.com/directoryservice/latest/simple-ad/join_get_dns_addresses.html",
+                            "type": "StringList"
+                        }
+                    },
+                    "runtimeConfig": {
+                        "aws:domainJoin": {
+                            "properties": {
+                                "directoryId": "{{ directoryId }}",
+                                "directoryName": "{{ directoryName }}",
+                                "dnsIpAddresses": "{{ dnsIpAddresses }}"
+                            }
+                        }
+                    },
+                    "schemaVersion": "1.2"
+                }
+            },
+            "Type": "AWS::SSM::Document"
+        },
+        "NatGateway": {
+            "Properties": {
+                "AllocationId": {
+                    "Fn::GetAtt": [
+                        "NewNatEip",
+                        "AllocationId"
+                    ]
+                },
+                "SubnetId": {
+                    "Ref": "PublicSubnet01"
+                }
+            },
+            "Type": "AWS::EC2::NatGateway"
+        },
+        "NatRoute": {
+            "Properties": {
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "NatGatewayId": {
+                    "Ref": "NatGateway"
+                },
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTable"
+                }
+            },
+            "Type": "AWS::EC2::Route"
+        },
+        "NewNatEip": {
+            "Properties": {
+                "Domain": "vpc"
+            },
+            "Type": "AWS::EC2::EIP"
+        },
+        "PrivateRouteTable": {
+            "Properties": {
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "PrivateRoute"
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "Vpc"
+                }
+            },
+            "Type": "AWS::EC2::RouteTable"
+        },
+        "PrivateSubnet01": {
+            "Properties": {
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        0,
+                        {
+                            "Fn::GetAZs": ""
+                        }
+                    ]
+                },
+                "CidrBlock": {
+                    "Ref": "VpcCidrBlockPrivateSubnet01"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "Private-Subnet-01"
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "Vpc"
+                }
+            },
+            "Type": "AWS::EC2::Subnet"
+        },
+        "PrivateSubnet02": {
+            "Properties": {
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        1,
+                        {
+                            "Fn::GetAZs": ""
+                        }
+                    ]
+                },
+                "CidrBlock": {
+                    "Ref": "VpcCidrBlockPrivateSubnet02"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "private-subnet-2"
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "Vpc"
+                }
+            },
+            "Type": "AWS::EC2::Subnet"
+        },
+        "PrivateSubnet1RouteTableAssociation": {
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTable"
+                },
+                "SubnetId": {
+                    "Ref": "PrivateSubnet01"
+                }
+            },
+            "Type": "AWS::EC2::SubnetRouteTableAssociation"
+        },
+        "PrivateSubnet2RouteTableAssociation": {
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTable"
+                },
+                "SubnetId": {
+                    "Ref": "PrivateSubnet02"
+                }
+            },
+            "Type": "AWS::EC2::SubnetRouteTableAssociation"
+        },
+        "PublicRouteTable": {
+            "Properties": {
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "PublicRoute"
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "Vpc"
+                }
+            },
+            "Type": "AWS::EC2::RouteTable"
+        },
+        "PublicSubnet01": {
+            "Properties": {
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        0,
+                        {
+                            "Fn::GetAZs": ""
+                        }
+                    ]
+                },
+                "CidrBlock": {
+                    "Ref": "VpcCidrBlockPublicSubnet01"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "Public-Subnet-01"
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "Vpc"
+                }
+            },
+            "Type": "AWS::EC2::Subnet"
+        },
+        "PublicSubnet02": {
+            "Properties": {
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        1,
+                        {
+                            "Fn::GetAZs": ""
+                        }
+                    ]
+                },
+                "CidrBlock": {
+                    "Ref": "VpcCidrBlockPublicSubnet02"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "Public-Subnet-02"
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "Vpc"
+                }
+            },
+            "Type": "AWS::EC2::Subnet"
+        },
+        "PublicSubnet1RouteTableAssociation": {
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PublicRouteTable"
+                },
+                "SubnetId": {
+                    "Ref": "PublicSubnet01"
+                }
+            },
+            "Type": "AWS::EC2::SubnetRouteTableAssociation"
+        },
+        "PublicSubnet2RouteTableAssociation": {
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PublicRouteTable"
+                },
+                "SubnetId": {
+                    "Ref": "PublicSubnet02"
+                }
+            },
+            "Type": "AWS::EC2::SubnetRouteTableAssociation"
+        },
+        "SGFSx": {
+            "DependsOn": [
+                "Vpc"
+            ],
+            "Properties": {
+                "GroupDescription": "Enable access...",
+                "SecurityGroupIngress": [
+                    {
+                        "FromPort": "445",
+                        "IpProtocol": "tcp",
+                        "SourceSecurityGroupId": {
+                            "Ref": "SGInstance"
+                        },
+                        "ToPort": "445"
+                    },
+                    {
+                        "FromPort": "445",
+                        "IpProtocol": "udp",
+                        "SourceSecurityGroupId": {
+                            "Ref": "SGInstance"
+                        },
+                        "ToPort": "445"
+                    },
+                    {
+                        "FromPort": "135",
+                        "IpProtocol": "tcp",
+                        "SourceSecurityGroupId": {
+                            "Ref": "SGInstance"
+                        },
+                        "ToPort": "135"
+                    },
+                    {
+                        "FromPort": "1024",
+                        "IpProtocol": "tcp",
+                        "SourceSecurityGroupId": {
+                            "Ref": "SGInstance"
+                        },
+                        "ToPort": "65535"
+                    },
+                    {
+                        "FromPort": "1024",
+                        "IpProtocol": "udp",
+                        "SourceSecurityGroupId": {
+                            "Ref": "SGInstance"
+                        },
+                        "ToPort": "65535"
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "Vpc"
+                }
+            },
+            "Type": "AWS::EC2::SecurityGroup"
+        },
+        "SGInstance": {
+            "DependsOn": [
+                "Vpc"
+            ],
+            "Properties": {
+                "GroupDescription": "Enable RDP access via port 3389",
+                "SecurityGroupIngress": [
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "FromPort": "3389",
+                        "IpProtocol": "tcp",
+                        "ToPort": "3389"
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "Vpc"
+                }
+            },
+            "Type": "AWS::EC2::SecurityGroup"
+        },
+        "Vpc": {
+            "Properties": {
+                "CidrBlock": {
+                    "Ref": "VpcCidrBlock"
+                },
+                "EnableDnsHostnames": "true",
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "My-VPC"
+                    }
+                ]
+            },
+            "Type": "AWS::EC2::VPC"
+        }
+    }
+}
