@@ -119,4 +119,4 @@ You will need to get into your Windows instance, using the private key you will 
 
   * [Scaling Out Read Performance with Read Replicas](https://docs.aws.amazon.com/fsx/latest/WindowsGuide/scale-out-read.html)
 
-![Scaling Out Read Performance with Read Replicas](https://docs.aws.amazon.com/fsx/latest/WindowsGuide/scale-out-read.html)
+![Scaling Out Read Performance with Read Replicas](https://docs.aws.amazon.com/fsx/latest/WindowsGuide/images/FSx-scale-out-read.png)
