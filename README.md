@@ -95,7 +95,7 @@ You will need to get into your Windows instance, using the private key you will 
 
 3.8\. Choose a drive letter of your choice for Drive, by default is **Z**.
 
-3.9\. Enter the fully qualified domain name (FQDN) name for your file share. You construct this name from the FQDN of your file system and the name of your Windows file share. For **Folder** type `\\<FileSystemId>.corp.example.com\share` where <FileSystemId> is replaced with the Value copied earlier.
+3.9\. Enter the fully qualified domain name (FQDN) name for your file share. You construct this name from the FQDN of your file system and the name of your Windows file share. For **Folder** type `\\<FileSystemId>.corp.example.com\share` where `<FileSystemId>` is replaced with the Value copied earlier.
 
 3.10\. Choose whether the file share should **Reconnect at sign-in** and then choose **Finish**.
 
