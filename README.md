@@ -40,19 +40,21 @@ You will need to get into your Windows instance, using the private key you will 
 
 ![Stack name](images/cloudformation-stack-name.png)
 
-2.6\. For **KeyName** select your key pair created previously and leave all the values as default, scroll down and click **Next**.
+2.6\. For **KeyName** select your key pair created previously.
 
 ![Key Pair](images/cloudformation-key-pair.png)
 
-2.7\. For the **Configure stack options** section choose **Next**.
+2.7 Review the default values, just remember that the **Password** for your Active Directory will be **`MicrosoftADPW123`*** as default, you can change it if you want, scroll down and click **Next**.
 
-2.8\. For the **Review MicrosoftAD-And-FSx** section, check the box for **I acknowledge that AWS CloudFormation might create IAM resources with custom names.** and click **Create Stack**.
+2.8\. For the **Configure stack options** section choose **Next**.
+
+2.9\. For the **Review MicrosoftAD-And-FSx** section, check the box for **I acknowledge that AWS CloudFormation might create IAM resources with custom names.** and click **Create Stack**.
 
 ![Review](images/cloudformation-review.png)
 
-2.9\. It will take about 45 minutes while your stack is being created, it is listed on the **Stacks** page with a status of **CREATE_IN_PROGRESS**.
+2.10\. It will take about 45 minutes while your stack is being created, it is listed on the **Stacks** page with a status of **CREATE_IN_PROGRESS**.
 
-2.10\. After your stack has been successfully created, its status changes to **CREATE_COMPLETE**. You can then click the **Outputs** tab to view your stack's outputs required for the following configurations.
+2.11\. After your stack has been successfully created, its status changes to **CREATE_COMPLETE**. You can then click the **Outputs** tab to view your stack's outputs required for the following configurations.
 
 ![Cloudformation Complete](images/cloudformation-create-complete.png)
 
@@ -64,3 +66,5 @@ You will need to get into your Windows instance, using the private key you will 
 * One Amazon FSx for Windows File Server
 
 ![AWS Services](images/microsoftad-and-fsx.png)
+
+## 3. Create a new Key Pair
