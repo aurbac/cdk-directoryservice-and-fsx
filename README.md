@@ -105,3 +105,18 @@ You will need to get into your Windows instance, using the private key you will 
 
 ![Z Drive](images/ec2-z-drive.png)
 
+## Next Steps
+
+* [Multi-AZ File System Deployments - Failover](https://docs.aws.amazon.com/fsx/latest/WindowsGuide/multi-az-deployments.html)
+
+![Multi-AZ File System Deployments - Failover](https://docs.aws.amazon.com/fsx/latest/WindowsGuide/images/MultiAZDiagram.png)
+
+* Performance
+
+  * [Scaling Out Performance with Shards](https://docs.aws.amazon.com/fsx/latest/WindowsGuide/scale-out-performance.html)
+
+![Scaling Out Performance with Shards](https://docs.aws.amazon.com/fsx/latest/WindowsGuide/images/FSx-scale-out-performance.png)
+
+  * [Scaling Out Read Performance with Read Replicas](https://docs.aws.amazon.com/fsx/latest/WindowsGuide/scale-out-read.html)
+
+![Scaling Out Read Performance with Read Replicas](https://docs.aws.amazon.com/fsx/latest/WindowsGuide/scale-out-read.html)
