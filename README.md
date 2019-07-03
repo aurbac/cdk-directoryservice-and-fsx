@@ -2,7 +2,7 @@
 
 Log into the AWS Management Console and choose the [N. Virginia Region](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html).
 
-## 1. Create a new Key Pair
+## 1. Create a Key Pair
 
 You will need to get into your Windows instance, using the private key you will obtain the Administrator password and then login using RDP.
 
@@ -58,6 +58,8 @@ You will need to get into your Windows instance, using the private key you will 
 
 ![Cloudformation Complete](images/cloudformation-create-complete.png)
 
+**Copy the Value for FileSystemId, you will use it later.**
+
 ### AWS Services created
 
 * One Amazon VPC environment with two public and two private subnets.
@@ -67,4 +69,39 @@ You will need to get into your Windows instance, using the private key you will 
 
 ![AWS Services](images/microsoftad-and-fsx.png)
 
-## 3. Create a new Key Pair
+## 3. Connect to your Windows File Share
+
+3.1\. Open the Amazon EC2 console at https://console.aws.amazon.com/ec2.
+
+3.2\. Click on **Instances** in the **INSTANCES** section. This will display a page to manage your instances.
+
+3.3\. Select your **MyWindowsInstance** and choose **Connect**.
+
+![EC2 Instances](images/ec2-instances.png)
+
+3.4\. Click on **Download Remote Desktop File** and **Close** the window.
+
+![Download Remote Desktop File](images/ec2-connect.png)
+
+3.5\. Ope your **.rdp** file, you'll see the Remote Desktop Connection dialog box, for **Username** type `corp.example.com\Admin` and for **Password** type `MicrosoftADPW123*`, and choose **Continue**.
+
+![Connection](images/ec2-connection.png)
+
+3.6\. Once connected, open File Explorer.
+
+3.7\. From the navigation pane, open the context (right-click) menu for **Network** and choose **Map Network Drive**.
+
+![File Explorer](images/ec2-file-explorer.png)
+
+3.8\. Choose a drive letter of your choice for Drive, by default is **Z**.
+
+3.9\. Enter the fully qualified domain name (FQDN) name for your file share. You construct this name from the FQDN of your file system and the name of your Windows file share. For **Folder** type `\\<FileSystemId>.corp.example.com\share` where <FileSystemId> is replaced with the Value copied earlier.
+
+3.10\. Choose whether the file share should **Reconnect at sign-in** and then choose **Finish**.
+
+![Drive](images/ec2-drive.png)
+
+3.11\. Now you will see your file share as a **Z** drive.
+
+![Z Drive](images/ec2-z-drive.png)
+
