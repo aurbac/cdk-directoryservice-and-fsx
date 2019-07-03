@@ -44,7 +44,7 @@ You will need to get into your Windows instance, using the private key you will 
 
 ![Key Pair](images/cloudformation-key-pair.png)
 
-2.7 Review the default values, just remember that the **Password** for your Active Directory will be **`MicrosoftADPW123`*** as default, you can change it if you want, scroll down and click **Next**.
+2.7 Review the default values, just remember that the **Password** for your Active Directory will be **`MicrosoftADPW123*`** as default, you can change it if you want, scroll down and click **Next**.
 
 2.8\. For the **Configure stack options** section choose **Next**.
 
