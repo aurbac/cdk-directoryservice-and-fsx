@@ -80,6 +80,22 @@
             "MinValue": "300",
             "Type": "Number"
         },
+        "FSxThroughputCapacity": {
+            "AllowedValues": [
+                8,
+                16,
+                32,
+                64,
+                128,
+                256,
+                512,
+                1024,
+                2048
+            ],
+            "Default": "8",
+            "Description": "Throughput capacity in MB/s.",
+            "Type": "Number"
+        },
         "KeyName": {
             "Description": "Name of an existing EC2 KeyPair to enable RDP access to the instance",
             "Type": "AWS::EC2::KeyPair::KeyName"
@@ -301,6 +317,12 @@
         "InternetGateway": {
             "Type": "AWS::EC2::InternetGateway"
         },
+        "MyCloud9": {
+            "Properties": {
+                "InstanceType": "t2.micro"
+            },
+            "Type": "AWS::Cloud9::EnvironmentEC2"
+        },
         "MyFSx": {
             "DependsOn": [
                 "MyMicrosoftAD"
@@ -327,7 +349,9 @@
                     "AutomaticBackupRetentionDays": 2,
                     "CopyTagsToBackups": "true",
                     "DailyAutomaticBackupStartTime": "01:00",
-                    "ThroughputCapacity": 8,
+                    "ThroughputCapacity": {
+                        "Ref": "FSxThroughputCapacity"
+                    },
                     "WeeklyMaintenanceStartTime": "4:16:30"
                 }
             },
