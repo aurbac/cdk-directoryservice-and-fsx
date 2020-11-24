@@ -92,7 +92,13 @@ In the **File Explorer**, open the context (right-click) menu for **Network** an
 
 Choose a drive letter of your choice for Drive, by default is **Z**.
 
-Enter the fully qualified domain name (FQDN) name for your file share. You construct this name from the FQDN of your file system and the name of your Windows file share. For **Folder** type `\\<FileSystemId>.corp.example.com\share` where `<FileSystemId>` is replaced with the Value copied earlier. (Copy from cloudformation output)
+Enter the fully qualified domain name (FQDN) name for your file share. You can retrieve the DNSName using the AWS CLI with the following command.
+
+``` bash
+aws fsx describe-file-systems --query 'FileSystems[*].{DNSName:DNSName, StorageCapacity:StorageCapacity, ThroughputCapacity:WindowsConfiguration.ThroughputCapacity,RemoteAdministrationEndpoint:WindowsConfiguration.RemoteAdministrationEndpoint}'
+```
+
+For **Folder** type `\\<DNSName>\share` where `<DNSName>` is replaced with the Value from last command output.
 
 Choose whether the file share should **Reconnect at sign-in** and then choose **Finish**.
 

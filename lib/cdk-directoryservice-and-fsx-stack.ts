@@ -142,7 +142,5 @@ export class CdkDirectoryserviceAndFsxStack extends cdk.Stack {
       }
     });
     
-    new cdk.CfnOutput(this, 'fsxFolder', { value: '\\\\'+ file.ref +'.'+props.directoryServiceName+'\\share' });
-    
   }
 }

@@ -506,15 +506,6 @@ Outputs:
     Value: Admin
   adPassword:
     Value: !Ref MyADPassword
-  fsxFolder:
-    Value:
-      Fn::Join:
-        - ""
-        - - \\
-          - Ref: file
-          - .
-          - Ref: MyADServiceName
-          - \share
 Parameters:
   SsmParameterValueawsserviceamiwindowslatestWindowsServer2019EnglishFullBaseC96584B6F00A464EAD1953AFF4B05118Parameter:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
