@@ -1,122 +1,103 @@
-# AWS Managed Microsoft AD and Amazon FSx for Windows File Server
+# AWS Directory Service and Amazon FSx for Windows File with CDK
 
-Log into the AWS Management Console and choose the [N. Virginia Region](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html).
+![AWS Directory Service and Amazon FSx for Windows File with CDK](images/diagram.png)
 
-## 1. Create a Key Pair
+## Requirements for development environment
 
-You will need to get into your Windows instance, using the private key you will obtain the Administrator password and then login using RDP.
+Work inside your AWS Cloud9 environment - [Create an EC2 Environment](https://docs.aws.amazon.com/cloud9/latest/user-guide/create-environment-main.html#create-environment-console)
 
-1.1\. Open the Amazon EC2 console at https://console.aws.amazon.com/ec2.
+Install the latest version of CDK.
 
-1.2\. Click on **Key Pairs** in the **NETWORK & SECURITY** section. This will display a page to manage your key pairs.
+``` bash
+npm install -g aws-cdk --force
+```
 
-![Key Pairs menu](images/ec2-key-pairs-menu.png)
+## Creating a basic secret to store the Direcotry Service password
 
-1.3\. To create a new key pair, click the **Create Key Pair** button.
+Open the AWS Secrets Manager console at https://console.aws.amazon.com/secretsmanager/.
 
-![Create Key Pair](images/ec2-create-key-pair.png)
+Choose **Store a new secret**.
 
-1.4\. In the resulting pop up window, for **Key Pair Name** type `my-keypair` and click **Create**.
+In the **Select secret type** section, choose **Other type of secrets**, specify your password in **Plaintext** and choose **Next**.
 
-![Key Pair Name](images/ec2-key-pair-name.png)
+![Secret](images/secret.png)
 
-1.5\. The private key file is automatically downloaded by your browser. The base file name is the name you specified as the name of your key pair, and the file name extension is .pem. Save the private key file in a safe place.
+For **Secret name**, type `directoryServicePassword` and choose **Next**.
 
-## 2. Create the AWS Managed Microsoft AD and Amazon FSx for Windows File Server using CloudFormation
+For **Configure rotation** section, leave the default configuration and choose **Next**.
 
-2.1\. Download the [CloudFormation template AURBAC-MicrosoftAD-And-FSx.json](scripts/AURBAC-MicrosoftAD-And-FSx.json), we are going to use it to create the environment and services required.
+Review your settings, and then choose **Store** secret to save.
 
-2.2\. Open the AWS CloudFormation console at https://console.aws.amazon.com/cloudformation.
-  
-2.3\. In **Stacks** section choose **Create Stack**.
+## Creating, initializing and deploying an AWS CDK project
 
-![Create Stack](images/cloudformation-create-stack.png)
+Create a directory for your CDK project.
 
-2.4\. In the **Create stack** section, select **Template is ready**, select **Upload a template file** and **Choose file** for the template downloaded **AURBAC-MicrosoftAD-And-FSx.json** and click **Next**.
+``` bash
+mkdir cdk-directoryservice-and-fsx
+cd cdk-directoryservice-and-fsx
+```
 
-![Create Stack Select file](images/cloudformation-create-stack-file.png)
+To initialize your new CDK project use the cdk init command as follows.
 
-2.5\. In the **Specify stack details** section, for **Stack name** type `MicrosoftAD-And-FSx` to identify the cloudformation stack.
+``` bash
+cdk init --language typescript
+```
 
-![Stack name](images/cloudformation-stack-name.png)
+Install the AWS modules and all it’s dependencies into your project.
 
-2.6\. For **KeyName** select your key pair created previously.
+``` bash
+npm install @aws-cdk/aws-ec2 @aws-cdk/aws-directoryservice @aws-cdk/aws-ssm @aws-cdk/aws-iam @aws-cdk/aws-fsx
+```
 
-![Key Pair](images/cloudformation-key-pair.png)
+Replace the following files with the samples codes linked.
 
-2.7 Review the default values, just remember that the **Password** for your Active Directory will be **`MicrosoftADPW123*`** as default, you can change it if you want, scroll down and click **Next**.
+- [lib/cdk-directoryservice-and-fsx-stack.ts](lib/cdk-directoryservice-and-fsx-stack.ts)
+- [bin/cdk-directoryservice-and-fsx.ts](bin/cdk-directoryservice-and-fsx.ts)
+  - Change the **directoryServiceName** value with the name for your directory service.
+  - Change the **directoryServiceShortName** value with the short name for your directory service.
+  - Change the **directoryServicePasswordSecret** value with the name of your secret.
+  - Change the **fsxStorageCapacity** value with your value.
+  - Change the **fsxThroughputCapacity** value with your value.
+- [test/cdk-directoryservice-and-fsx.test.ts](test/cdk-directoryservice-and-fsx.test.ts)
 
-2.8\. For the **Configure stack options** section choose **Next**.
+Build the project.
 
-2.9\. For the **Review MicrosoftAD-And-FSx** section, check the box for **I acknowledge that AWS CloudFormation might create IAM resources with custom names.** and click **Create Stack**.
+``` bash
+npm run build
+```
 
-![Review](images/cloudformation-review.png)
+Deploy the stack, **it will take a few minutes to complete**.
 
-2.10\. It will take about 45 minutes while your stack is being created, it is listed on the **Stacks** page with a status of **CREATE_IN_PROGRESS**.
+``` bash
+cdk deploy
+```
 
-2.11\. After your stack has been successfully created, its status changes to **CREATE_COMPLETE**. You can then click the **Outputs** tab to view your stack's outputs required for the following configurations.
+## Connect to your Windows Manage AD instance
 
-![Cloudformation Complete](images/cloudformation-create-complete.png)
+Open the Amazon EC2 console at https://console.aws.amazon.com/ec2.
 
-**Copy the Value for FileSystemId, you will use it later.**
+Click on **Instances** in the **INSTANCES** section. This will display a page to manage your instances.
 
-### AWS Services created
+Select your **WindowsManageAD** and choose **Connect**.
 
-* One Amazon VPC environment with two public and two private subnets.
-* One Microsoft AD Standard.
-* One EC2 instance with Windows 2016 (t3.medium).
-* One Amazon FSx for Windows File Server
+Click on **Download Remote Desktop File** and **Close** the window.
 
-![AWS Services](images/microsoftad-and-fsx.png)
+Ope your **.rdp** file, you'll see the Remote Desktop Connection dialog box, for **Username** type the directory service name with the Admin user as follows: `aurbac.kabits.com\Admin` and type the password stored in AWS Secrets Manager.
 
-## 3. Connect to your Windows File Share
+## Connect to the Windows File Server
 
-3.1\. Open the Amazon EC2 console at https://console.aws.amazon.com/ec2.
-
-3.2\. Click on **Instances** in the **INSTANCES** section. This will display a page to manage your instances.
-
-3.3\. Select your **MyWindowsInstance** and choose **Connect**.
-
-![EC2 Instances](images/ec2-instances.png)
-
-3.4\. Click on **Download Remote Desktop File** and **Close** the window.
-
-![Download Remote Desktop File](images/ec2-connect.png)
-
-3.5\. Ope your **.rdp** file, you'll see the Remote Desktop Connection dialog box, for **Username** type `corp.example.com\Admin` and for **Password** type `MicrosoftADPW123*`, and choose **Continue**.
-
-![Connection](images/ec2-connection.png)
-
-3.6\. Once connected, open File Explorer.
-
-3.7\. From the navigation pane, open the context (right-click) menu for **Network** and choose **Map Network Drive**.
+In the **File Explorer**, open the context (right-click) menu for **Network** and choose **Map Network Drive**.
 
 ![File Explorer](images/ec2-file-explorer.png)
 
-3.8\. Choose a drive letter of your choice for Drive, by default is **Z**.
+Choose a drive letter of your choice for Drive, by default is **Z**.
 
-3.9\. Enter the fully qualified domain name (FQDN) name for your file share. You construct this name from the FQDN of your file system and the name of your Windows file share. For **Folder** type `\\<FileSystemId>.corp.example.com\share` where `<FileSystemId>` is replaced with the Value copied earlier.
+Enter the fully qualified domain name (FQDN) name for your file share. You construct this name from the FQDN of your file system and the name of your Windows file share. For **Folder** type `\\<FileSystemId>.corp.example.com\share` where `<FileSystemId>` is replaced with the Value copied earlier. (Copy from cloudformation output)
 
-3.10\. Choose whether the file share should **Reconnect at sign-in** and then choose **Finish**.
+Choose whether the file share should **Reconnect at sign-in** and then choose **Finish**.
 
 ![Drive](images/ec2-drive.png)
 
-3.11\. Now you will see your file share as a **Z** drive.
+Now you will see your file share as a **Z** drive.
 
 ![Z Drive](images/ec2-z-drive.png)
-
-## Next Steps
-
-* [Multi-AZ File System Deployments - Failover](https://docs.aws.amazon.com/fsx/latest/WindowsGuide/multi-az-deployments.html)
-
-![Multi-AZ File System Deployments - Failover](https://docs.aws.amazon.com/fsx/latest/WindowsGuide/images/MultiAZDiagram.png)
-
-* Performance
-
-  * [Scaling Out Performance with Shards](https://docs.aws.amazon.com/fsx/latest/WindowsGuide/scale-out-performance.html)
-
-![Scaling Out Performance with Shards](https://docs.aws.amazon.com/fsx/latest/WindowsGuide/images/FSx-scale-out-performance.png)
-
-  * [Scaling Out Read Performance with Read Replicas](https://docs.aws.amazon.com/fsx/latest/WindowsGuide/scale-out-read.html)
-
-![Scaling Out Read Performance with Read Replicas](https://docs.aws.amazon.com/fsx/latest/WindowsGuide/images/FSx-scale-out-read.png)
