@@ -1,0 +1,629 @@
+Resources:
+  vpcA2121C38:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.1.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: CdkDirectoryserviceStack/vpc
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/vpc/Resource
+  vpcPublicSubnet1Subnet2E65531E:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.1.0.0/24
+      VpcId:
+        Ref: vpcA2121C38
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Public
+        - Key: aws-cdk:subnet-type
+          Value: Public
+        - Key: Name
+          Value: CdkDirectoryserviceStack/vpc/PublicSubnet1
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/vpc/PublicSubnet1/Subnet
+  vpcPublicSubnet1RouteTable48A2DF9B:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: vpcA2121C38
+      Tags:
+        - Key: Name
+          Value: CdkDirectoryserviceStack/vpc/PublicSubnet1
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/vpc/PublicSubnet1/RouteTable
+  vpcPublicSubnet1RouteTableAssociation5D3F4579:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: vpcPublicSubnet1RouteTable48A2DF9B
+      SubnetId:
+        Ref: vpcPublicSubnet1Subnet2E65531E
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/vpc/PublicSubnet1/RouteTableAssociation
+  vpcPublicSubnet1DefaultRoute10708846:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: vpcPublicSubnet1RouteTable48A2DF9B
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: vpcIGWE57CBDCA
+    DependsOn:
+      - vpcVPCGW7984C166
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/vpc/PublicSubnet1/DefaultRoute
+  vpcPublicSubnet1EIPDA49DCBE:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: CdkDirectoryserviceStack/vpc/PublicSubnet1
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/vpc/PublicSubnet1/EIP
+  vpcPublicSubnet1NATGateway9C16659E:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId:
+        Fn::GetAtt:
+          - vpcPublicSubnet1EIPDA49DCBE
+          - AllocationId
+      SubnetId:
+        Ref: vpcPublicSubnet1Subnet2E65531E
+      Tags:
+        - Key: Name
+          Value: CdkDirectoryserviceStack/vpc/PublicSubnet1
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/vpc/PublicSubnet1/NATGateway
+  vpcPublicSubnet2Subnet009B674F:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.1.1.0/24
+      VpcId:
+        Ref: vpcA2121C38
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Public
+        - Key: aws-cdk:subnet-type
+          Value: Public
+        - Key: Name
+          Value: CdkDirectoryserviceStack/vpc/PublicSubnet2
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/vpc/PublicSubnet2/Subnet
+  vpcPublicSubnet2RouteTableEB40D4CB:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: vpcA2121C38
+      Tags:
+        - Key: Name
+          Value: CdkDirectoryserviceStack/vpc/PublicSubnet2
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/vpc/PublicSubnet2/RouteTable
+  vpcPublicSubnet2RouteTableAssociation21F81B59:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: vpcPublicSubnet2RouteTableEB40D4CB
+      SubnetId:
+        Ref: vpcPublicSubnet2Subnet009B674F
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/vpc/PublicSubnet2/RouteTableAssociation
+  vpcPublicSubnet2DefaultRouteA1EC0F60:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: vpcPublicSubnet2RouteTableEB40D4CB
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: vpcIGWE57CBDCA
+    DependsOn:
+      - vpcVPCGW7984C166
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/vpc/PublicSubnet2/DefaultRoute
+  vpcPrivateSubnet1Subnet934893E8:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.1.2.0/24
+      VpcId:
+        Ref: vpcA2121C38
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Private
+        - Key: aws-cdk:subnet-type
+          Value: Private
+        - Key: Name
+          Value: CdkDirectoryserviceStack/vpc/PrivateSubnet1
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/vpc/PrivateSubnet1/Subnet
+  vpcPrivateSubnet1RouteTableB41A48CC:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: vpcA2121C38
+      Tags:
+        - Key: Name
+          Value: CdkDirectoryserviceStack/vpc/PrivateSubnet1
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/vpc/PrivateSubnet1/RouteTable
+  vpcPrivateSubnet1RouteTableAssociation67945127:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: vpcPrivateSubnet1RouteTableB41A48CC
+      SubnetId:
+        Ref: vpcPrivateSubnet1Subnet934893E8
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/vpc/PrivateSubnet1/RouteTableAssociation
+  vpcPrivateSubnet1DefaultRoute1AA8E2E5:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: vpcPrivateSubnet1RouteTableB41A48CC
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: vpcPublicSubnet1NATGateway9C16659E
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/vpc/PrivateSubnet1/DefaultRoute
+  vpcPrivateSubnet2Subnet7031C2BA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.1.3.0/24
+      VpcId:
+        Ref: vpcA2121C38
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Private
+        - Key: aws-cdk:subnet-type
+          Value: Private
+        - Key: Name
+          Value: CdkDirectoryserviceStack/vpc/PrivateSubnet2
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/vpc/PrivateSubnet2/Subnet
+  vpcPrivateSubnet2RouteTable7280F23E:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: vpcA2121C38
+      Tags:
+        - Key: Name
+          Value: CdkDirectoryserviceStack/vpc/PrivateSubnet2
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/vpc/PrivateSubnet2/RouteTable
+  vpcPrivateSubnet2RouteTableAssociation007E94D3:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: vpcPrivateSubnet2RouteTable7280F23E
+      SubnetId:
+        Ref: vpcPrivateSubnet2Subnet7031C2BA
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/vpc/PrivateSubnet2/RouteTableAssociation
+  vpcPrivateSubnet2DefaultRouteB0E07F99:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: vpcPrivateSubnet2RouteTable7280F23E
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: vpcPublicSubnet1NATGateway9C16659E
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/vpc/PrivateSubnet2/DefaultRoute
+  vpcIGWE57CBDCA:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: CdkDirectoryserviceStack/vpc
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/vpc/IGW
+  vpcVPCGW7984C166:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+        Ref: vpcA2121C38
+      InternetGatewayId:
+        Ref: vpcIGWE57CBDCA
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/vpc/VPCGW
+  directoryservice:
+    Type: AWS::DirectoryService::MicrosoftAD
+    Properties:
+      Name: !Ref MyADServiceName
+      Password: !Ref MyADPassword
+      VpcSettings:
+        SubnetIds:
+          - Ref: vpcPrivateSubnet1Subnet934893E8
+          - Ref: vpcPrivateSubnet2Subnet7031C2BA
+        VpcId:
+          Ref: vpcA2121C38
+      CreateAlias: true
+      Edition: Enterprise
+      EnableSso: true
+      ShortName: !Ref MyADServiceShortName
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/directoryservice
+  windowsroleB457E733:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                Fn::Join:
+                  - ""
+                  - - ec2.
+                    - Ref: AWS::URLSuffix
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/windows_role/Resource
+  windowsprofile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - Ref: windowsroleB457E733
+      InstanceProfileName: WindowsInstanceProfile
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/windows_profile
+  windowssecuritygroup2B4B3A90:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow rdp access to ec2 instances
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          Description: allow rdp access from the world
+          FromPort: 3389
+          IpProtocol: tcp
+          ToPort: 3389
+      VpcId:
+        Ref: vpcA2121C38
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/windows_security_group/Resource
+  fsxsecuritygroup30DE0154:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow rdp access to fsx
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      VpcId:
+        Ref: vpcA2121C38
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/fsx_security_group/Resource
+  fsxsecuritygroupfromCdkDirectoryserviceStackwindowssecuritygroupBCD1EA8E4459427C216:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      Description: from CdkDirectoryserviceStackwindowssecuritygroupBCD1EA8E:445
+      FromPort: 445
+      GroupId:
+        Fn::GetAtt:
+          - fsxsecuritygroup30DE0154
+          - GroupId
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - windowssecuritygroup2B4B3A90
+          - GroupId
+      ToPort: 445
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/fsx_security_group/from CdkDirectoryserviceStackwindowssecuritygroupBCD1EA8E:445
+  fsxsecuritygroupfromCdkDirectoryserviceStackwindowssecuritygroupBCD1EA8EUDP4457CEED20F:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: udp
+      Description: from CdkDirectoryserviceStackwindowssecuritygroupBCD1EA8E:UDP 445
+      FromPort: 445
+      GroupId:
+        Fn::GetAtt:
+          - fsxsecuritygroup30DE0154
+          - GroupId
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - windowssecuritygroup2B4B3A90
+          - GroupId
+      ToPort: 445
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/fsx_security_group/from CdkDirectoryserviceStackwindowssecuritygroupBCD1EA8E:UDP 445
+  fsxsecuritygroupfromCdkDirectoryserviceStackwindowssecuritygroupBCD1EA8E1355AEDB84E:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      Description: from CdkDirectoryserviceStackwindowssecuritygroupBCD1EA8E:135
+      FromPort: 135
+      GroupId:
+        Fn::GetAtt:
+          - fsxsecuritygroup30DE0154
+          - GroupId
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - windowssecuritygroup2B4B3A90
+          - GroupId
+      ToPort: 135
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/fsx_security_group/from CdkDirectoryserviceStackwindowssecuritygroupBCD1EA8E:135
+  fsxsecuritygroupfromCdkDirectoryserviceStackwindowssecuritygroupBCD1EA8E655356FDD1617:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      Description: from CdkDirectoryserviceStackwindowssecuritygroupBCD1EA8E:65535
+      FromPort: 65535
+      GroupId:
+        Fn::GetAtt:
+          - fsxsecuritygroup30DE0154
+          - GroupId
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - windowssecuritygroup2B4B3A90
+          - GroupId
+      ToPort: 65535
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/fsx_security_group/from CdkDirectoryserviceStackwindowssecuritygroupBCD1EA8E:65535
+  fsxsecuritygroupfromCdkDirectoryserviceStackwindowssecuritygroupBCD1EA8EUDP655353D2799BB:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: udp
+      Description: from CdkDirectoryserviceStackwindowssecuritygroupBCD1EA8E:UDP 65535
+      FromPort: 65535
+      GroupId:
+        Fn::GetAtt:
+          - fsxsecuritygroup30DE0154
+          - GroupId
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - windowssecuritygroup2B4B3A90
+          - GroupId
+      ToPort: 65535
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/fsx_security_group/from CdkDirectoryserviceStackwindowssecuritygroupBCD1EA8E:UDP 65535
+  windowsdocumentad:
+    Type: AWS::SSM::Document
+    Properties:
+      Content:
+        description: Join instances to an AWS Directory Service domain.
+        parameters:
+          directoryId:
+            description: (Required) The ID of the AWS Directory Service directory.
+            type: String
+          directoryName:
+            description: (Required) The name of the directory; for example, test.example.com
+            type: String
+          dnsIpAddresses:
+            allowedPattern: ((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)
+            default: []
+            description: (Optional) The IP addresses of the DNS servers in the directory. Required when DHCP is not configured. Learn more at http://docs.aws.amazon.com/directoryservice/latest/simple-ad/join_get_dns_addresses.html
+            type: StringList
+        runtimeConfig:
+          aws:domainJoin:
+            properties:
+              directoryId: "{{ directoryId }}"
+              directoryName: "{{ directoryName }}"
+              dnsIpAddresses: "{{ dnsIpAddresses }}"
+        schemaVersion: "1.2"
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/windows_document_ad
+  windows:
+    Type: AWS::EC2::Instance
+    Properties:
+      IamInstanceProfile:
+        Ref: windowsprofile
+      ImageId:
+        Ref: SsmParameterValueawsserviceamiwindowslatestWindowsServer2019EnglishFullBaseC96584B6F00A464EAD1953AFF4B05118Parameter
+      InstanceType: t3.large
+      SecurityGroupIds:
+        - Fn::GetAtt:
+            - windowssecuritygroup2B4B3A90
+            - GroupId
+      SsmAssociations:
+        - AssociationParameters:
+            - Key: directoryId
+              Value:
+                - Ref: directoryservice
+            - Key: directoryName
+              Value:
+                - Ref: MyADServiceName
+            - Key: dnsIpAddresses
+              Value:
+                Fn::GetAtt:
+                  - directoryservice
+                  - DnsIpAddresses
+          DocumentName:
+            Ref: windowsdocumentad
+      SubnetId:
+        Ref: vpcPublicSubnet1Subnet2E65531E
+      Tags:
+        - Key: Name
+          Value: WindowsToManageAD
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/windows
+  file:
+    Type: AWS::FSx::FileSystem
+    Properties:
+      FileSystemType: WINDOWS
+      SubnetIds:
+        - Ref: vpcPrivateSubnet1Subnet934893E8
+        - Ref: vpcPrivateSubnet2Subnet7031C2BA
+      SecurityGroupIds:
+        - Fn::GetAtt:
+            - fsxsecuritygroup30DE0154
+            - GroupId
+      StorageCapacity: !Ref FsxStorageCapacity
+      WindowsConfiguration:
+        ActiveDirectoryId:
+          Ref: directoryservice
+        AutomaticBackupRetentionDays: 2
+        CopyTagsToBackups: true
+        DeploymentType: MULTI_AZ_1
+        PreferredSubnetId:
+          Ref: vpcPrivateSubnet1Subnet934893E8
+        ThroughputCapacity: !Ref FsxThroughputCapacity
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/file
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Modules: aws-cdk=1.74.0,@aws-cdk/assets=1.74.0,@aws-cdk/aws-cloudwatch=1.74.0,@aws-cdk/aws-directoryservice=1.74.0,@aws-cdk/aws-ec2=1.74.0,@aws-cdk/aws-events=1.74.0,@aws-cdk/aws-fsx=1.74.0,@aws-cdk/aws-iam=1.74.0,@aws-cdk/aws-kms=1.74.0,@aws-cdk/aws-logs=1.74.0,@aws-cdk/aws-s3=1.74.0,@aws-cdk/aws-s3-assets=1.74.0,@aws-cdk/aws-ssm=1.74.0,@aws-cdk/cloud-assembly-schema=1.74.0,@aws-cdk/core=1.74.0,@aws-cdk/cx-api=1.74.0,@aws-cdk/region-info=1.74.0,jsii-runtime=node.js/v10.23.0
+    Metadata:
+      aws:cdk:path: CdkDirectoryserviceStack/CDKMetadata/Default
+    Condition: CDKMetadataAvailable
+Outputs:
+  adDomainName:
+    Value: !Ref MyADServiceName
+  adUser:
+    Value: Admin
+  adPassword:
+    Value: !Ref MyADPassword
+  fsxFolder:
+    Value:
+      Fn::Join:
+        - ""
+        - - \\
+          - Ref: file
+          - .
+          - Ref: MyADServiceName
+          - \share
+Parameters:
+  SsmParameterValueawsserviceamiwindowslatestWindowsServer2019EnglishFullBaseC96584B6F00A464EAD1953AFF4B05118Parameter:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-windows-latest/Windows_Server-2019-English-Full-Base
+  FsxStorageCapacity: 
+    Default: 100
+    Description: Storage capacity for FSx
+    Type: Number
+    MinValue: 32
+    MaxValue: 65536
+  FsxThroughputCapacity: 
+    Default: 16
+    Description: Throughput capacity for FSx
+    Type: Number
+    AllowedValues: 
+      - 8
+      - 16
+      - 32
+      - 64
+      - 128
+      - 256
+      - 512
+      - 1024
+      - 2048
+  MyADPassword: 
+    Description: The active directory Admin account password
+    Default: Example123
+    Type: String
+    MinLength: 1
+    MaxLength: 41
+    AllowedPattern: ^[a-zA-Z0-9]*$
+  MyADServiceName: 
+    Description: The active directory service name
+    Default: aurbac.kabits.com
+    Type: String
+  MyADServiceShortName: 
+    Description: The active directory service short name
+    Default: aurbackabits
+    Type: String
+  InstanceType: 
+    Type: String
+    Default: t3.large
+    AllowedValues: 
+      - t3.small
+      - t3.medium
+      - t3.large
+    Description: Enter t3.small, t3.medium or t3.large. Default is t3.large.
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-northwest-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - sa-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-2

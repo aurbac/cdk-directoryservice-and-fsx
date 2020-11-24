@@ -4,7 +4,7 @@ import * as cdk from '@aws-cdk/core';
 import { CdkDirectoryserviceAndFsxStack } from '../lib/cdk-directoryservice-and-fsx-stack';
 
 const app = new cdk.App();
-new CdkDirectoryserviceAndFsxStack(app, 'CdkDirectoryserviceStack', {
+new CdkDirectoryserviceAndFsxStack(app, 'CdkDirectoryserviceFsxStack', {
     directoryServiceName: "aurbac.kabits.com",
     directoryServiceShortName: "aurbackabits",
     directoryServicePasswordSecret: "directoryServicePassword",

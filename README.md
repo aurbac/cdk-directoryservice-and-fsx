@@ -56,8 +56,8 @@ Replace the following files with the samples codes linked.
   - Change the **directoryServiceName** value with the name for your directory service.
   - Change the **directoryServiceShortName** value with the short name for your directory service.
   - Change the **directoryServicePasswordSecret** value with the name of your secret.
-  - Change the **fsxStorageCapacity** value with your value.
-  - Change the **fsxThroughputCapacity** value with your value.
+  - Change the **fsxStorageCapacity** with your value.
+  - Change the **fsxThroughputCapacity** with your value.
 - [test/cdk-directoryservice-and-fsx.test.ts](test/cdk-directoryservice-and-fsx.test.ts)
 
 Build the project.
